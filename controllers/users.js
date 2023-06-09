@@ -39,9 +39,9 @@ const getUser = (req, res) => {
     .then((foundUser) => res.send({ data: foundUser }))
     .catch((err) => {
       if (err.message === ERROR_INVALID_ID) {
-        res.status(STATUS_NOT_FOUND).send({ data: MSG_NOT_FOUND });
+        res.status(STATUS_NOT_FOUND).send({ message: MSG_NOT_FOUND });
       } else if (err instanceof CastError) {
-        res.status(STATUS_BAD_REQ).send({ data: MSG_BAD_REQ + err.message });
+        res.status(STATUS_BAD_REQ).send({ message: MSG_BAD_REQ + err.message });
       } else {
         res.status(STATUS_SERVER_ERROR).send({ message: MSG_SERVER_ERROR + err.message });
       }
@@ -64,7 +64,7 @@ const updateUser = (req, res) => {
       if (err.message === ERROR_INVALID_ID) {
         res.status(STATUS_NOT_FOUND).send({ message: MSG_NOT_FOUND });
       } else if (err instanceof CastError || err instanceof ValidationError) {
-        res.status(STATUS_BAD_REQ).send({ data: MSG_BAD_REQ + err.message });
+        res.status(STATUS_BAD_REQ).send({ message: MSG_BAD_REQ + err.message });
       } else {
         res.status(STATUS_SERVER_ERROR).send({ message: MSG_SERVER_ERROR + err.message });
       }
@@ -81,7 +81,7 @@ const updateUserAvatar = (req, res) => {
       if (err.message === ERROR_INVALID_ID) {
         res.status(STATUS_NOT_FOUND).send({ message: MSG_NOT_FOUND });
       } else if (err instanceof CastError || err instanceof ValidationError) {
-        res.status(STATUS_BAD_REQ).send({ data: MSG_BAD_REQ + err.message });
+        res.status(STATUS_BAD_REQ).send({ message: MSG_BAD_REQ + err.message });
       } else {
         res.status(STATUS_SERVER_ERROR).send({ message: MSG_SERVER_ERROR + err.message });
       }
