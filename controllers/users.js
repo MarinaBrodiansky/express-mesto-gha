@@ -35,7 +35,7 @@ const createUser = (req, res, next) => {
         .then((newUser) => res.status(201).send({ data: newUser }))
         .catch((err) => {
           if (err instanceof ValidationError) {
-            next(new BadRequestError(err.message));
+            next(new BadRequestError('Некорректные данные'));
           } else if (err.code === 11000) {
             next(new ConflictRequestError('Такой пользователь уже существует'));
           } else {
@@ -65,10 +65,10 @@ const getCurrentUser = (req, res, next) => {
     .then((foundUser) => res.send({ data: foundUser }))
     .catch((err) => next(err));
 };
-
+// eslint-disable-next-line consistent-return
 const updateUser = (req, res, next) => {
   const { name, about } = req.body;
-  const userId = req.params.userId;
+  const { userId } = req.params;
 
   if (req.user._id !== userId) {
     return next(new ForbiddenError('Вы не можете редактировать профиль другого пользователя'));
@@ -86,9 +86,10 @@ const updateUser = (req, res, next) => {
     .catch((err) => next(err));
 };
 
+// eslint-disable-next-line consistent-return
 const updateUserAvatar = (req, res, next) => {
   const { avatar } = req.body;
-  const userId = req.params.userId;
+  const { userId } = req.params;
 
   if (req.user._id !== userId) {
     return next(new ForbiddenError('Вы не можете изменять аватар другого пользователя'));

@@ -8,11 +8,12 @@ const auth = require('./middlewares/auth');
 const errorHandler = require('./middlewares/errorHandler');
 const { login } = require('./controllers/users');
 const { createUser } = require('./controllers/users');
-const { MSG_NOT_FOUND } = require('./utils/globalVars');
+const { errors } = require('celebrate');
+// const { MSG_NOT_FOUND } = require('./utils/globalVars');
+const NotFoundError = require('./utils/errors/404-NotFound');
 
 const { PORT = 3000 } = process.env;
 const { MONGO_DB = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
-// const JWT_SECRET = 'some-secret-key';
 
 const LIMITER = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -31,20 +32,6 @@ app.use(LIMITER); // AntiDOS for all requests
 app.use(helmet());
 app.use(cookieParser());
 
-// // Заглушка авторизации
-// app.use((req, res, next) => {
-//   req.user = {
-//     _id: '64835419ed74038310dbacf9',
-//   };
-
-//   next();
-// });
-app.post('/signin', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().email().required(),
-    password: Joi.string().required(),
-  }),
-}), login);
 app.post('/signup', celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
@@ -54,17 +41,22 @@ app.post('/signup', celebrate({
     password: Joi.string().required(),
   }),
 }), createUser);
-// app.get('/users/:userId', getUser, errorHandler);
+app.post('/signin', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().email().required(),
+    password: Joi.string().required(),
+  }),
+}), login);
 
 app.use(auth);
 
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
-app.use('*', (req, res) => {
-  res.status(404).send({ message: MSG_NOT_FOUND });
-});
+app.use('*', (req, res, next) => next(new NotFoundError('Не найдено')));
 
+app.use(errors());
 app.use(errorHandler);
 
+// eslint-disable-next-line no-console
 app.listen(PORT, () => console.log('Server started on port:', PORT));
