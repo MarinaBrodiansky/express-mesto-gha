@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const UnauthorizedError = require('../utils/errors/401-Unauthorized');
 
+// eslint-disable-next-line consistent-return
 const authMiddleware = (req, res, next) => {
   const { authorization } = req.headers;
 

@@ -9,17 +9,17 @@ const NotFoundError = require('../utils/errors/404-NotFound');
 
 const ConflictRequestError = require('../utils/errors/409-ConflictRequest');
 
-const {
-  // STATUS_CREATED,
-  // STATUS_BAD_REQ,
-  // STATUS_CONFLICT,
-  // STATUS_SERVER_ERROR,
-  // MSG_SERVER_ERROR,
-  // STATUS_NOT_FOUND,
-  // MSG_NOT_FOUND,
-  // MSG_BAD_REQ,
-  ERROR_INVALID_ID,
-} = require('../utils/globalVars');
+// const {
+// STATUS_CREATED,
+// STATUS_BAD_REQ,
+// STATUS_CONFLICT,
+// STATUS_SERVER_ERROR,
+// MSG_SERVER_ERROR,
+// STATUS_NOT_FOUND,
+// MSG_NOT_FOUND,
+// MSG_BAD_REQ,
+// ERROR_INVALID_ID,
+// } = require('../utils/globalVars');
 
 const createUser = (req, res, next) => {
   const {
@@ -89,16 +89,16 @@ const updateUser = (req, res, next) => {
 // eslint-disable-next-line consistent-return
 const updateUserAvatar = (req, res, next) => {
   const { avatar } = req.body;
-  const { userId } = req.params;
-
-  if (req.user._id !== userId) {
-    return next(new ForbiddenError('Вы не можете изменять аватар другого пользователя'));
-  }
 
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
-    .orFail(new NotFoundError(ERROR_INVALID_ID))
-    .then((newAvatar) => res.send({ data: newAvatar }))
-    .catch((err) => next(err));
+    .then((user) => res.send({ data: user }))
+    .catch((err) => {
+      if (err instanceof ValidationError) {
+        next(new BadRequestError('Некорректные данные'));
+      } else {
+        next(err);
+      }
+    });
 };
 
 const login = (req, res, next) => {

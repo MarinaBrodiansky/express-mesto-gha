@@ -26,6 +26,5 @@ router.patch('/me/avatar', celebrate({
     avatar: Joi.string().pattern(/^(https?:\/\/)?[\w-]+(\.[\w-]+)+([\w.,@?^=%&:;/~+#-]*[\w@?^=%&/~+#-])?$/).required(),
   }),
 }), updateUserAvatar);
-// router.post('/login', login);
 
 module.exports = router;
