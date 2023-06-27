@@ -1,81 +1,67 @@
-const { CastError, ValidationError } = require('mongoose').Error;
+const { ValidationError } = require('mongoose').Error;
 const Card = require('../models/card');
 const {
   STATUS_CREATED,
-  STATUS_BAD_REQ,
-  MSG_BAD_REQ,
-  STATUS_SERVER_ERROR,
-  MSG_SERVER_ERROR,
-  ERROR_INVALID_ID,
-  STATUS_NOT_FOUND,
-  MSG_NOT_FOUND,
+  // STATUS_BAD_REQ,
+  // MSG_BAD_REQ,
+  // STATUS_SERVER_ERROR,
+  // MSG_SERVER_ERROR,
+  // ERROR_INVALID_ID,
+  // STATUS_NOT_FOUND,
+  // MSG_NOT_FOUND,
 } = require('../utils/globalVars');
+const BadRequestError = require('../utils/errors/400-BadRequest');
+// const UnauthorizedError = require('../utils/errors/401-Unauthorized');
+const ForbiddenError = require('../utils/errors/403-Forbidden');
+const NotFoundError = require('../utils/errors/404-NotFound');
+// const ConflictRequestError = ('../utils/errors/409-ConflictRequest');
 
-const createCard = (req, res) => {
+const createCard = (req, res, next) => {
   const { name, link } = req.body;
 
   Card.create({ name, link, owner: req.user._id })
     .then((newCard) => res.status(STATUS_CREATED).send({ data: newCard }))
     .catch((err) => {
       if (err instanceof ValidationError) {
-        res.status(STATUS_BAD_REQ).send({ message: MSG_BAD_REQ + err.message });
+        next(new BadRequestError('Переданы некорректные данные'));
       } else {
-        res.status(STATUS_SERVER_ERROR).send({ message: MSG_SERVER_ERROR + err.message });
+        next(err);
       }
     });
 };
 
-const getCards = (req, res) => {
+const getCards = (req, res, next) => {
   Card.find({})
     .then((cardList) => res.send({ data: cardList }))
-    .catch((err) => {
-      res.status(STATUS_SERVER_ERROR).send({ message: MSG_SERVER_ERROR + err.message });
-    });
+    .catch((err) => next(err));
 };
 
-const deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params.cardId)
-    .orFail(new Error(ERROR_INVALID_ID))
-    .then((card) => res.send({ data: card }))
-    .catch((err) => {
-      if (err.message === ERROR_INVALID_ID) {
-        res.status(STATUS_NOT_FOUND).send({ message: MSG_NOT_FOUND });
-      } else if (err instanceof CastError) {
-        res.status(STATUS_BAD_REQ).send({ message: MSG_BAD_REQ });
-      } else {
-        res.status(STATUS_SERVER_ERROR).send({ message: MSG_SERVER_ERROR + err.message });
+const deleteCard = (req, res, next) => {
+  const cardId = req.params.cardId;
+  const userId = req.user._id;
+  Card.findByIdAndRemove({ _id: cardId, owner: userId })
+    .orFail(new NotFoundError('Карточка с таким id не найдена'))
+    .then((card) => {
+      if (!card.owner.equals(userId)) {
+        return next(new ForbiddenError('Вы не можете удалить эту карточку'));
       }
-    });
+      res.send({ data: {} });
+    })
+    .catch((err) => next(err));
 };
 
-const putLike = (req, res) => {
+const putLike = (req, res, next) => {
   Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, { new: true })
-    .orFail(new Error(ERROR_INVALID_ID))
+    .orFail(new NotFoundError('Карточка с таким id не найдена'))
     .then((card) => res.send({ data: card }))
-    .catch((err) => {
-      if (err.message === ERROR_INVALID_ID) {
-        res.status(STATUS_NOT_FOUND).send({ message: MSG_NOT_FOUND });
-      } else if (err instanceof CastError) {
-        res.status(STATUS_BAD_REQ).send({ message: MSG_BAD_REQ });
-      } else {
-        res.status(STATUS_SERVER_ERROR).send({ message: MSG_SERVER_ERROR + err.message });
-      }
-    });
+    .catch((err) => next(err));
 };
 
-const deleteLike = (req, res) => {
+const deleteLike = (req, res, next) => {
   Card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: req.user._id } }, { new: true })
-    .orFail(new Error(ERROR_INVALID_ID))
+    .orFail(new NotFoundError('Карточка с таким id не найдена'))
     .then((card) => res.send({ data: card }))
-    .catch((err) => {
-      if (err.message === ERROR_INVALID_ID) {
-        res.status(STATUS_NOT_FOUND).send({ message: MSG_NOT_FOUND });
-      } else if (err instanceof CastError) {
-        res.status(STATUS_BAD_REQ).send({ message: MSG_BAD_REQ });
-      } else {
-        res.status(STATUS_SERVER_ERROR).send({ message: MSG_SERVER_ERROR + err.message });
-      }
-    });
+    .catch((err) => next(err));
 };
 
 module.exports = {
