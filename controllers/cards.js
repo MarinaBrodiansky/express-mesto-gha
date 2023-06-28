@@ -38,7 +38,7 @@ const getCards = (req, res, next) => {
 
 const deleteCard = (req, res, next) => {
   const { cardId } = req.params;
-  const { _id: userId } = req.user._id;
+  const { _id: userId } = req.user;
   Card.findByIdAndRemove({ _id: cardId, owner: userId })
     .orFail(new NotFoundError('Карточка с таким id не найдена'))
     // eslint-disable-next-line consistent-return
