@@ -3,23 +3,9 @@ const bcrypt = require('bcryptjs');
 const { ValidationError } = require('mongoose').Error;
 const User = require('../models/user');
 const BadRequestError = require('../utils/errors/400-BadRequest');
-// const UnauthorizedError = require('../utils/errors/401-Unauthorized');
-// const ForbiddenError = require('../utils/errors/403-Forbidden');
 const NotFoundError = require('../utils/errors/404-NotFound');
 
 const ConflictRequestError = require('../utils/errors/409-ConflictRequest');
-
-// const {
-// STATUS_CREATED,
-// STATUS_BAD_REQ,
-// STATUS_CONFLICT,
-// STATUS_SERVER_ERROR,
-// MSG_SERVER_ERROR,
-// STATUS_NOT_FOUND,
-// MSG_NOT_FOUND,
-// MSG_BAD_REQ,
-// ERROR_INVALID_ID,
-// } = require('../utils/globalVars');
 
 const createUser = (req, res, next) => {
   const {
@@ -48,27 +34,27 @@ const createUser = (req, res, next) => {
           }
         });
     })
-    .catch((err) => next(err));
+    .catch(next);
 };
 
 const getAllUsers = (req, res, next) => {
   User.find({})
     .then((userList) => res.send({ data: userList }))
-    .catch((err) => next(err));
+    .catch(next);
 };
 
 const getUser = (req, res, next) => {
   User.findById(req.params.userId)
     .orFail(new NotFoundError('Пользователь с таким ID не найден'))
     .then((foundUser) => res.send({ data: foundUser }))
-    .catch((err) => next(err));
+    .catch(next);
 };
 
 const getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
     .orFail(new NotFoundError('Пользователь с таким ID не найден'))
     .then((foundUser) => res.send({ data: foundUser }))
-    .catch((err) => next(err));
+    .catch(next);
 };
 // eslint-disable-next-line consistent-return
 const updateUser = (req, res, next) => {
@@ -82,7 +68,7 @@ const updateUser = (req, res, next) => {
         throw new BadRequestError('Переданы некорректные данные');
       }
     })
-    .catch((err) => next(err));
+    .catch(next);
 };
 
 // eslint-disable-next-line consistent-return
@@ -108,11 +94,7 @@ const login = (req, res, next) => {
       res.cookie('token', token, { httpOnly: true });
       res.send({ email });
     })
-    .catch((err) => next(err));
-  // ошибка аутентификации
-  // res.status(401).send({ message: err.message });
-  // next(err);
-  // });
+    .catch(next);
 };
 
 module.exports = {

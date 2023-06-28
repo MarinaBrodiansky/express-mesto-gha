@@ -11,8 +11,7 @@ const { createUser, login } = require('./controllers/users');
 // const { MSG_NOT_FOUND } = require('./utils/globalVars');
 const NotFoundError = require('./utils/errors/404-NotFound');
 
-const { PORT = 3000 } = process.env;
-const { MONGO_DB = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
+const { PORT = 3000, MONGO_DB = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
 
 const LIMITER = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
