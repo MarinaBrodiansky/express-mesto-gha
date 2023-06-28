@@ -7,8 +7,7 @@ const helmet = require('helmet');
 const { errors } = require('celebrate');
 const auth = require('./middlewares/auth');
 const errorHandler = require('./middlewares/errorHandler');
-const { login } = require('./controllers/users');
-const { createUser } = require('./controllers/users');
+const { createUser, login } = require('./controllers/users');
 // const { MSG_NOT_FOUND } = require('./utils/globalVars');
 const NotFoundError = require('./utils/errors/404-NotFound');
 

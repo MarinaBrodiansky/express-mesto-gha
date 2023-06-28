@@ -32,7 +32,12 @@ const createUser = (req, res, next) => {
       User.create({
         name, about, avatar, email, password: hashedPassword,
       })
-        .then((newUser) => res.status(201).send({ data: newUser }))
+        .then(() => res.status(201).send({
+          name,
+          about,
+          avatar,
+          email,
+        }))
         .catch((err) => {
           if (err instanceof ValidationError) {
             next(new BadRequestError('Некорректные данные'));
@@ -101,7 +106,7 @@ const login = (req, res, next) => {
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
       res.cookie('token', token, { httpOnly: true });
-      res.send({ token });
+      res.send({ email });
     })
     .catch((err) => next(err));
   // ошибка аутентификации
