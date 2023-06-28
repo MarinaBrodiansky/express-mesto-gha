@@ -4,7 +4,7 @@ const { ValidationError } = require('mongoose').Error;
 const User = require('../models/user');
 const BadRequestError = require('../utils/errors/400-BadRequest');
 // const UnauthorizedError = require('../utils/errors/401-Unauthorized');
-const ForbiddenError = require('../utils/errors/403-Forbidden');
+// const ForbiddenError = require('../utils/errors/403-Forbidden');
 const NotFoundError = require('../utils/errors/404-NotFound');
 
 const ConflictRequestError = require('../utils/errors/409-ConflictRequest');
@@ -68,14 +68,8 @@ const getCurrentUser = (req, res, next) => {
 // eslint-disable-next-line consistent-return
 const updateUser = (req, res, next) => {
   const { name, about } = req.body;
-  const { userId } = req.params;
-
-  if (req.user._id !== userId) {
-    return next(new ForbiddenError('Вы не можете редактировать профиль другого пользователя'));
-  }
 
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
-    .orFail(new NotFoundError('Пользователь с таким ID не найден'))
     .then((updatedUser) => {
       if (updatedUser) {
         res.send({ data: updatedUser });
