@@ -46,7 +46,7 @@ const deleteCard = (req, res, next) => {
       if (!card.owner.equals(userId)) {
         return next(new ForbiddenError('Вы не можете удалить эту карточку'));
       }
-      res.status(200).send({ data: {} });
+      res.send({ data: {} });
     })
     .catch((err) => next(err));
 };

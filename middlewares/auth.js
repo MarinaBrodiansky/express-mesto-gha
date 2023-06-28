@@ -3,13 +3,18 @@ const UnauthorizedError = require('../utils/errors/401-Unauthorized');
 
 // eslint-disable-next-line consistent-return
 const authMiddleware = (req, res, next) => {
-  const { authorization } = req.headers;
+  const { token } = req.cookies;
+  // const { authorization } = req.headers;
 
-  if (!authorization || !authorization.startsWith('Bearer ')) {
+  // if (!authorization || !authorization.startsWith('Bearer ')) {
+  // return next(new UnauthorizedError('Необходима авторизация'));
+  // }
+
+  if (!token) {
     return next(new UnauthorizedError('Необходима авторизация'));
   }
 
-  const token = authorization.replace('Bearer ', '');
+  // const token = authorization.replace('Bearer ', '');
   let payload;
 
   try {
